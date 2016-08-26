@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/codegangsta/cli"
-	"github.com/mondough/orchestra/config"
+	"github.com/monzo/orchestra/config"
 	"github.com/wsxiaoys/terminal"
 )
 

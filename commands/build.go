@@ -10,7 +10,7 @@ import (
 	"github.com/codegangsta/cli"
 	"github.com/wsxiaoys/terminal"
 
-	"github.com/mondough/orchestra/services"
+	"github.com/monzo/orchestra/services"
 )
 
 var BuildCommand = &cli.Command{

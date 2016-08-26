@@ -8,8 +8,8 @@ import (
 
 	log "github.com/cihub/seelog"
 	"github.com/codegangsta/cli"
-	"github.com/mondough/orchestra/config"
-	"github.com/mondough/orchestra/services"
+	"github.com/monzo/orchestra/config"
+	"github.com/monzo/orchestra/services"
 )
 
 // niceness used for subprocesses

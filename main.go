@@ -8,9 +8,9 @@ import (
 
 	log "github.com/cihub/seelog"
 	"github.com/codegangsta/cli"
-	"github.com/mondough/orchestra/commands"
-	"github.com/mondough/orchestra/config"
-	"github.com/mondough/orchestra/services"
+	"github.com/monzo/orchestra/commands"
+	"github.com/monzo/orchestra/config"
+	"github.com/monzo/orchestra/services"
 )
 
 var app *cli.App
