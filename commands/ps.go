@@ -10,7 +10,7 @@ import (
 	"sync"
 
 	"github.com/codegangsta/cli"
-	"github.com/mondough/orchestra/services"
+	"github.com/monzo/orchestra/services"
 	"github.com/wsxiaoys/terminal"
 )
 
@@ -57,7 +57,7 @@ func getPorts(service *services.Service) string {
 	cmd.Stderr = output
 	err := cmd.Run()
 	if err != nil {
-		return ""
+		return fmt.Sprintf("error: %v", err)
 	}
 	lsofOutput := ""
 	for {
