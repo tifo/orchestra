@@ -8,7 +8,7 @@ Orchestra is a toolkit to manage a fleet of Go binaries/services. A unique place
 
 Build & Install
 ---------------
-`go get -u github.com/vinceprignano/orchestra`
+`go get -u github.com/monzo/orchestra`
 
 Start an Orchestra Project
 --------------------------
