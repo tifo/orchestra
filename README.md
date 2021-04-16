@@ -8,7 +8,7 @@ Orchestra is a toolkit to manage a fleet of Go binaries/services. A unique place
 
 Build & Install
 ---------------
-`go get -u github.com/monzo/orchestra`
+`go get -u github.com/tifo/orchestra`
 
 Start an Orchestra Project
 --------------------------
@@ -46,7 +46,7 @@ Commands
 --------
 - **start** `--option [<service>...]` Starts every service
 > _Options:_
-> 
+>
 > `--attach, -a` Attach to services output after start
 >
 > `--logs, -l`	Start logging after start
@@ -54,7 +54,7 @@ Commands
 - **stop** `--option [<service>...]` Stops every service
 - **restart** `--option [<service>...]` Restarts every service
 > _Options:_
-> 
+>
 > `--attach, -a` Attach to services output after start
 >
 > `--logs, -l`	Start logging after start
@@ -62,7 +62,7 @@ Commands
 - **logs** `--option [<service>...]` Aggregates the output from the services
 - **test** `--option [<service>...]` Runs `go test ./...` for every service
 > _Options:_
-> 
+>
 > `-v` `--verbose` Run tests in verbose mode
 >
 > `-r` `--race` Run tests with race condition
@@ -72,7 +72,7 @@ Commands
 A service name can be prefixed with `~` to run a command in exclusion mode.
 For example `orchestra start ~second-service` will start everything expect the second-service.
 
-> When using `-a` or `--attach` with start/restart, the services will be spawned in the same ochestra's process group. 
+> When using `-a` or `--attach` with start/restart, the services will be spawned in the same ochestra's process group.
 
 ## Configuring commands
 Every command can be configured separately with special environment variables or with before/after commands.
@@ -111,4 +111,3 @@ source $GOPATH/src/github.com/vinceprignano/orchestra/autocomplete/orchestra
 Licensing
 ---------
 Orchestra is licensed under the Apache License, Version 2.0.
-

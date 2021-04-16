@@ -10,9 +10,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/codegangsta/cli"
-	"github.com/monzo/orchestra/services"
+	"github.com/urfave/cli"
 	"github.com/wsxiaoys/terminal"
+
+	"github.com/tifo/orchestra/services"
 )
 
 var StartCommand = &cli.Command{

@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/cihub/seelog"
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 	"gopkg.in/yaml.v2"
 )
 

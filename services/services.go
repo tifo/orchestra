@@ -2,6 +2,7 @@ package services
 
 import (
 	"fmt"
+	"go/build"
 	"io/ioutil"
 	"os"
 	"sort"
@@ -9,11 +10,8 @@ import (
 	"strings"
 	"syscall"
 
-	"go/build"
-
-	"gopkg.in/yaml.v1"
-
 	log "github.com/cihub/seelog"
+	"gopkg.in/yaml.v1"
 )
 
 var (

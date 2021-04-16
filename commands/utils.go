@@ -7,9 +7,10 @@ import (
 	"strings"
 
 	log "github.com/cihub/seelog"
-	"github.com/codegangsta/cli"
-	"github.com/monzo/orchestra/config"
-	"github.com/monzo/orchestra/services"
+	"github.com/urfave/cli"
+
+	"github.com/tifo/orchestra/config"
+	"github.com/tifo/orchestra/services"
 )
 
 // niceness used for subprocesses

@@ -6,10 +6,11 @@ import (
 	"sync"
 
 	log "github.com/cihub/seelog"
-	"github.com/codegangsta/cli"
 	"github.com/hpcloud/tail"
-	"github.com/monzo/orchestra/services"
+	"github.com/urfave/cli"
 	"github.com/wsxiaoys/terminal"
+
+	"github.com/tifo/orchestra/services"
 )
 
 var LogsCommand = &cli.Command{

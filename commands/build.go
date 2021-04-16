@@ -7,10 +7,10 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 	"github.com/wsxiaoys/terminal"
 
-	"github.com/monzo/orchestra/services"
+	"github.com/tifo/orchestra/services"
 )
 
 var BuildCommand = &cli.Command{

@@ -7,10 +7,11 @@ import (
 	"path/filepath"
 
 	log "github.com/cihub/seelog"
-	"github.com/codegangsta/cli"
-	"github.com/monzo/orchestra/commands"
-	"github.com/monzo/orchestra/config"
-	"github.com/monzo/orchestra/services"
+	"github.com/urfave/cli"
+
+	"github.com/tifo/orchestra/commands"
+	"github.com/tifo/orchestra/config"
+	"github.com/tifo/orchestra/services"
 )
 
 var app *cli.App
@@ -21,7 +22,7 @@ func main() {
 	defer log.Flush()
 	app = cli.NewApp()
 	app.Name = "Orchestra"
-	app.Usage = "Orchestrate Go Services"
+	app.Usage = "Orchestrate Go Services (Tifo)"
 	app.EnableBashCompletion = true
 	app.Commands = []cli.Command{
 		*commands.BuildCommand,
