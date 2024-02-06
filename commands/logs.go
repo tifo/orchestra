@@ -6,7 +6,7 @@ import (
 	"sync"
 
 	log "github.com/cihub/seelog"
-	"github.com/hpcloud/tail"
+	"github.com/tenebris-tech/tail"
 	"github.com/urfave/cli"
 	"github.com/wsxiaoys/terminal"
 

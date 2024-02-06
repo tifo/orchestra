@@ -18,28 +18,28 @@ var ConfigPath string
 var globalEnvs []string
 
 type ContextConfig struct {
-	Env    map[string]string `env,omitempty`
-	Before []string          `before,omitempty`
-	After  []string          `after,omitempty`
+	Env    map[string]string `yaml:"env,omitempty"`
+	Before []string          `yaml:"before,omitempty"`
+	After  []string          `yaml:"after,omitempty"`
 }
 
 type Config struct {
 	// Global Configuration
-	Env    map[string]string `env,omitempty`
-	Before []string          `before,omitempty`
-	After  []string          `after,omitempty`
-	GoRun  bool              `gorun,omitempty`
+	Env    map[string]string `yaml:"env,omitempty"`
+	Before []string          `yaml:"before,omitempty"`
+	After  []string          `yaml:"after,omitempty"`
+	GoRun  bool              `yaml:"gorun,omitempty"`
 
 	// Configuration for Commands
-	Build   ContextConfig `build,omitempty`
-	Export  ContextConfig `export,omitempty`
-	Install ContextConfig `install,omitempty`
-	Logs    ContextConfig `logs,omitempty`
-	Ps      ContextConfig `ps,omitempty`
-	Restart ContextConfig `restart,omitempty`
-	Start   ContextConfig `start,omitempty`
-	Stop    ContextConfig `stop,omitempty`
-	Test    ContextConfig `test,omitempty`
+	Build   ContextConfig `yaml:"build,omitempty"`
+	Export  ContextConfig `yaml:"export,omitempty"`
+	Install ContextConfig `yaml:"install,omitempty"`
+	Logs    ContextConfig `yaml:"logs,omitempty"`
+	Ps      ContextConfig `yaml:"ps,omitempty"`
+	Restart ContextConfig `yaml:"restart,omitempty"`
+	Start   ContextConfig `yaml:"start,omitempty"`
+	Stop    ContextConfig `yaml:"stop,omitempty"`
+	Test    ContextConfig `yaml:"test,omitempty"`
 }
 
 func GetBaseEnvVars() map[string]string {

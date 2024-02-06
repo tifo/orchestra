@@ -3,15 +3,17 @@ package services
 import (
 	"fmt"
 	"go/build"
+	"io/fs"
 	"io/ioutil"
 	"os"
+	"path"
 	"sort"
 	"strconv"
 	"strings"
 	"syscall"
 
 	log "github.com/cihub/seelog"
-	"gopkg.in/yaml.v1"
+	"gopkg.in/yaml.v2"
 )
 
 var (
@@ -74,7 +76,7 @@ type Service struct {
 	BinPath       string
 
 	// Process, Service and Package information
-	FileInfo    os.FileInfo
+	FileInfo    fs.DirEntry
 	PackageInfo *build.Package
 	Process     *os.Process
 	Env         []string
@@ -105,16 +107,14 @@ func (s *Service) IsRunning() bool {
 // for the service.yml file. For every service it registers it after trying
 // to import the package using Go's build.Import package
 func DiscoverServices() {
-	gopath := strings.TrimRight(os.Getenv("GOPATH"), "/")
-	buildPath := strings.Replace(ProjectPath, gopath+"/src/", "", 1)
-	fd, _ := ioutil.ReadDir(ProjectPath)
+	fd, _ := os.ReadDir(ProjectPath)
 	for _, item := range fd {
 		serviceName := item.Name()
 		if item.IsDir() && !strings.HasPrefix(serviceName, ".") {
 			serviceConfigPath := fmt.Sprintf("%s/%s/service.yml", ProjectPath, serviceName)
 			if _, err := os.Stat(serviceConfigPath); err == nil {
 				// Check for service.yml and try to import the package
-				pkg, err := build.Import(fmt.Sprintf("%s/%s", buildPath, serviceName), "srcDir", 0)
+				pkg, err := build.ImportDir(path.Join(ProjectPath, serviceName), build.FindOnly)
 				if err != nil {
 					log.Errorf("Error registering %s", item.Name())
 					log.Error(err.Error())
@@ -134,7 +134,7 @@ func DiscoverServices() {
 
 				// Parse env variable in configuration
 				var serviceConfig struct {
-					Env map[string]string `env,omitempty`
+					Env map[string]string `yaml:"env,omitempty"`
 				}
 				b, err := ioutil.ReadFile(serviceConfigPath)
 				if err != nil {

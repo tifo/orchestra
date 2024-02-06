@@ -106,7 +106,7 @@ func buildAndStart(c *cli.Context, service *services.Service) (bool, error) {
 	pidFile.WriteString(strconv.Itoa(cmd.Process.Pid))
 	time.Sleep(200 * time.Millisecond)
 	if !service.IsRunning() {
-		return rebuilt, fmt.Errorf("Service %s exited after %s", cmd.ProcessState.UserTime().String())
+		return rebuilt, fmt.Errorf("Service %s exited after %s", service.Name, cmd.ProcessState.UserTime().String())
 	}
 	return rebuilt, nil
 }
