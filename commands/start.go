@@ -10,7 +10,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/wsxiaoys/terminal"
 
 	"github.com/tifo/orchestra/services"
@@ -22,11 +22,11 @@ var StartCommand = &cli.Command{
 	Action:       BeforeAfterWrapper(StartAction),
 	BashComplete: ServicesBashComplete,
 	Flags: []cli.Flag{
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "attach, a",
 			Usage: "Attach to services output after start",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name:  "logs, l",
 			Usage: "Start logging after start",
 		},

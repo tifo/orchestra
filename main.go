@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 
 	log "github.com/cihub/seelog"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 
 	"github.com/tifo/orchestra/commands"
 	"github.com/tifo/orchestra/config"
@@ -45,28 +45,28 @@ func main() {
 	app.Name = "Orchestra"
 	app.Usage = "Orchestrate Go Services (Tifo)"
 	app.EnableBashCompletion = true
-	app.Commands = []cli.Command{
-		*commands.BuildCommand,
-		*commands.ExportCommand,
-		*commands.InstallCommand,
-		*commands.LogsCommand,
-		*commands.PsCommand,
-		*commands.RestartCommand,
-		*commands.StartCommand,
-		*commands.StopCommand,
-		*commands.TestCommand,
+	app.Commands = []*cli.Command{
+		commands.BuildCommand,
+		commands.ExportCommand,
+		commands.InstallCommand,
+		commands.LogsCommand,
+		commands.PsCommand,
+		commands.RestartCommand,
+		commands.StartCommand,
+		commands.StopCommand,
+		commands.TestCommand,
 	}
 	app.Flags = []cli.Flag{
-		cli.StringFlag{
-			Name:   "config, c",
-			Usage:  "Specify a different config file to use (default: \"orchestra.yml\"",
-			EnvVar: "ORCHESTRA_CONFIG",
+		&cli.StringFlag{
+			Name:    "config, c",
+			Usage:   "Specify a different config file to use (default: \"orchestra.yml\"",
+			EnvVars: []string{"ORCHESTRA_CONFIG"},
 		},
 	}
 	// init checks for an existing orchestra.yml in the current working directory
 	// and creates a new .orchestra directory (if doesn't exist)
 	app.Before = func(c *cli.Context) error {
-		confVal := c.GlobalString("config")
+		confVal := c.String("config")
 		if confVal == "" {
 			confVal = findConfigFile()
 		}

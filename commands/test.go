@@ -6,7 +6,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 	"github.com/wsxiaoys/terminal"
 
 	"github.com/tifo/orchestra/services"
@@ -18,10 +18,10 @@ var TestCommand = &cli.Command{
 	Action:       BeforeAfterWrapper(TestAction),
 	BashComplete: ServicesBashComplete,
 	Flags: []cli.Flag{
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name: "verbose, v",
 		},
-		cli.BoolFlag{
+		&cli.BoolFlag{
 			Name: "race, r",
 		},
 	},

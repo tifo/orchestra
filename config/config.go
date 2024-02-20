@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	log "github.com/cihub/seelog"
-	"github.com/urfave/cli"
-	"gopkg.in/yaml.v2"
+	"github.com/urfave/cli/v2"
+	"gopkg.in/yaml.v3"
 )
 
 var orchestra *Config

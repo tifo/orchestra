@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	log "github.com/cihub/seelog"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 
 	"github.com/tifo/orchestra/config"
 	"github.com/tifo/orchestra/services"
@@ -20,7 +20,7 @@ const niceness = "1"
 // This is temporary, very very alpha and may change soon
 func FilterServices(c *cli.Context) map[string]*services.Service {
 	excludeMode := 0
-	args := c.Args()
+	args := c.Args().Slice()
 	for _, s := range args {
 		name := s
 		if strings.HasPrefix(s, "~") {

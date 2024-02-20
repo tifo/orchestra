@@ -12,7 +12,7 @@ import (
 	"syscall"
 
 	log "github.com/cihub/seelog"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 
 	"github.com/tifo/orchestra/config"
 )
