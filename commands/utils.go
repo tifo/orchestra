@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"path"
+	"path/filepath"
 	"strings"
 
 	log "github.com/cihub/seelog"
@@ -21,17 +23,28 @@ const niceness = "1"
 func FilterServices(c *cli.Context) map[string]*services.Service {
 	excludeMode := 0
 	args := c.Args().Slice()
+	included := make(map[string]bool)
+
 	for _, s := range args {
 		name := s
 		if strings.HasPrefix(s, "~") {
 			name = strings.Replace(s, "~", "", 1)
 		}
+		// Remove trailing slash to help with file autocomplete
+		name = strings.TrimRight(name, "/")
+		// Alias `.` to the current service if it exists
+		if name == "." {
+			cwd, _ := os.Getwd()
+			name, _ = filepath.Rel(services.ProjectPath, cwd)
+		}
+		// Check if arg match a service or a stack
 		if _, ok := services.Registry[name]; ok {
 			if strings.HasPrefix(s, "~") {
 				excludeMode += 1
 				delete(services.Registry, name)
 			} else {
 				excludeMode -= 1
+				included[name] = true
 			}
 		} else if stack, ok := services.StackRegistry[name]; ok {
 			if strings.HasPrefix(s, "~") {
@@ -42,9 +55,12 @@ func FilterServices(c *cli.Context) map[string]*services.Service {
 				delete(services.StackRegistry, name)
 			} else {
 				excludeMode -= 1
+				for _, svc := range stack {
+					included[svc.Name] = true
+				}
 			}
 		} else {
-			_ = log.Errorf("Service or stack %s not found", s)
+			_ = log.Errorf("Service or stack %s not found", name)
 			return nil
 		}
 	}
@@ -53,33 +69,13 @@ func FilterServices(c *cli.Context) map[string]*services.Service {
 		os.Exit(1)
 	}
 	if excludeMode < 0 {
-		for name, svc := range services.Registry {
-			included := false
-			for _, s := range args {
-				if name == s {
-					included = true
-					break
-				}
-				if svc.Stack == s {
-					included = true
-				}
-			}
-			if !included {
+		for name := range services.Registry {
+			if !included[name] {
 				delete(services.Registry, name)
 			}
 		}
 	}
 	return services.Registry
-}
-
-func ServicesBashComplete(c *cli.Context) {
-	for stack := range services.StackRegistry {
-		fmt.Println(stack)
-	}
-	for name := range services.Registry {
-		fmt.Println(name)
-		fmt.Println("~" + name)
-	}
 }
 
 func BeforeAfterWrapper(f func(c *cli.Context) error) func(c *cli.Context) error {
@@ -94,6 +90,21 @@ func BeforeAfterWrapper(f func(c *cli.Context) error) func(c *cli.Context) error
 			appendError(err)
 		}
 		return nil
+	}
+}
+
+func ServicesBashComplete(c *cli.Context) {
+	confVal := config.FindProjectConfig(c.String("config"))
+	config.ConfigPath, _ = filepath.Abs(confVal)
+	services.ProjectPath, _ = path.Split(config.ConfigPath)
+	config.ParseGlobalConfig()
+	services.Init()
+	for stack := range services.StackRegistry {
+		fmt.Println(stack)
+	}
+	for name := range services.Registry {
+		fmt.Println(name)
+		fmt.Println("~" + name)
 	}
 }
 

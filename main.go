@@ -16,35 +16,11 @@ import (
 
 var app *cli.App
 
-const defaultConfigFile = "orchestra.yml"
-
-func findConfigFile() string {
-	dir, err := os.Getwd()
-	if err != nil {
-		return defaultConfigFile
-	}
-	for {
-		file := filepath.Join(dir, defaultConfigFile)
-		_, err := os.Stat(file)
-		if err == nil {
-			return file
-		}
-
-		if dir == "/" {
-			break
-		}
-
-		dir = filepath.Dir(dir)
-	}
-	return defaultConfigFile
-}
-
 func main() {
 	defer log.Flush()
 	app = cli.NewApp()
 	app.Name = "Orchestra"
 	app.Usage = "Orchestrate Go Services (Tifo)"
-	app.EnableBashCompletion = true
 	app.Commands = []*cli.Command{
 		commands.BuildCommand,
 		commands.ExportCommand,
@@ -56,10 +32,11 @@ func main() {
 		commands.StopCommand,
 		commands.TestCommand,
 	}
+	app.EnableBashCompletion = true
 	app.Flags = []cli.Flag{
 		&cli.StringFlag{
 			Name:    "config, c",
-			Usage:   "Specify a different config file to use (default: \"orchestra.yml\"",
+			Usage:   "Specify a different config file to use (default: \"orchestra.yml\")",
 			EnvVars: []string{"ORCHESTRA_CONFIG"},
 		},
 	}
@@ -67,10 +44,7 @@ func main() {
 	// and creates a new .orchestra directory (if doesn't exist)
 	app.Before = func(c *cli.Context) error {
 		confVal := c.String("config")
-		if confVal == "" {
-			confVal = findConfigFile()
-		}
-
+		confVal = config.FindProjectConfig(confVal)
 		config.ConfigPath, _ = filepath.Abs(confVal)
 		if _, err := os.Stat(config.ConfigPath); os.IsNotExist(err) {
 			fmt.Printf("No %s found. Have you specified the right directory?\n", confVal)
@@ -87,7 +61,7 @@ func main() {
 		services.Init()
 		return nil
 	}
-	app.Version = "0.5.0"
+	app.Version = "0.5.2"
 	app.Run(os.Args)
 	if commands.HasErrors() {
 		os.Exit(1)

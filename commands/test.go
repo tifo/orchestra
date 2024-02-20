@@ -19,10 +19,12 @@ var TestCommand = &cli.Command{
 	BashComplete: ServicesBashComplete,
 	Flags: []cli.Flag{
 		&cli.BoolFlag{
-			Name: "verbose, v",
+			Name:  "verbose, v",
+			Usage: "Verbose output: log all tests as they are run",
 		},
 		&cli.BoolFlag{
-			Name: "race, r",
+			Name:  "race, r",
+			Usage: "Enable data race detection",
 		},
 	},
 }

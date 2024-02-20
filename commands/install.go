@@ -17,7 +17,8 @@ var InstallCommand = &cli.Command{
 	Name:         "install",
 	Usage:        "Installs all the services",
 	Action:       BeforeAfterWrapper(InstallAction),
-	BashComplete: ServicesBashComplete}
+	BashComplete: ServicesBashComplete,
+}
 
 // InstallAction installs all the services (or the specified ones)
 func InstallAction(c *cli.Context) error {

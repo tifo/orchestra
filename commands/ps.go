@@ -16,9 +16,10 @@ import (
 )
 
 var PsCommand = &cli.Command{
-	Name:   "ps",
-	Usage:  "Outputs the status of all services",
-	Action: BeforeAfterWrapper(PsAction),
+	Name:         "ps",
+	Usage:        "Outputs the status of all services",
+	Action:       BeforeAfterWrapper(PsAction),
+	BashComplete: ServicesBashComplete,
 }
 
 // PsAction checks the status for every service and output

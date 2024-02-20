@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"reflect"
 	"strings"
 
@@ -11,6 +12,8 @@ import (
 	"github.com/urfave/cli/v2"
 	"gopkg.in/yaml.v3"
 )
+
+const defaultConfigFile = "orchestra.yml"
 
 var orchestra *Config
 var ConfigPath string
@@ -80,6 +83,32 @@ func GetEnvForCommand(c *cli.Context) []string {
 		envs = append(envs, fmt.Sprintf("%s=%s", k, v))
 	}
 	return envs
+}
+
+// If a config file is specified, return it, otherwise try to find the nearest
+// defaultConfigFile in parents
+func FindProjectConfig(config string) string {
+	if config != "" {
+		return config
+	}
+	dir, err := os.Getwd()
+	if err != nil {
+		return defaultConfigFile
+	}
+	for {
+		file := filepath.Join(dir, defaultConfigFile)
+		_, err := os.Stat(file)
+		if err == nil {
+			return file
+		}
+
+		if dir == "/" {
+			break
+		}
+
+		dir = filepath.Dir(dir)
+	}
+	return defaultConfigFile
 }
 
 func runCommands(c *cli.Context, cmds []string) error {

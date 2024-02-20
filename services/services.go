@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"os"
 	"path"
+	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
@@ -108,7 +109,12 @@ func (s *Service) IsRunning() bool {
 }
 
 func discoverStack(stack string) {
-	fd, _ := os.ReadDir(path.Join(ProjectPath, stack))
+	fd, err := os.ReadDir(path.Join(ProjectPath, stack))
+	if err != nil {
+		_ = log.Errorf("Error registering stack %s")
+		_ = log.Error(err.Error())
+		return
+	}
 	if stack != "" {
 		StackRegistry[stack] = make([]*Service, 0)
 	}
@@ -187,6 +193,10 @@ func DiscoverServices() {
 		if stack == "" || stack == "." {
 			discoverStack("")
 		} else {
+			if !filepath.IsLocal(stack) {
+				_ = log.Errorf("Can't register stack %s, path is not local", stack)
+				continue
+			}
 			discoverStack(stack)
 		}
 	}
