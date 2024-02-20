@@ -2,13 +2,12 @@ package config
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"reflect"
 	"strings"
 
-	"github.com/cihub/seelog"
+	log "github.com/cihub/seelog"
 	"github.com/urfave/cli"
 	"gopkg.in/yaml.v2"
 )
@@ -30,6 +29,9 @@ type Config struct {
 	After  []string          `yaml:"after,omitempty"`
 	GoRun  bool              `yaml:"gorun,omitempty"`
 
+	// Stacks configuration (includes subfolders)
+	Stacks []string `yaml:"stacks,omitempty"`
+
 	// Configuration for Commands
 	Build   ContextConfig `yaml:"build,omitempty"`
 	Export  ContextConfig `yaml:"export,omitempty"`
@@ -50,14 +52,21 @@ func UseGoRun() bool {
 	return orchestra.GoRun
 }
 
+func GetStacks() []string {
+	if len(orchestra.Stacks) == 0 {
+		return []string{""}
+	}
+	return orchestra.Stacks
+}
+
 func ParseGlobalConfig() {
 	orchestra = &Config{}
-	b, err := ioutil.ReadFile(ConfigPath)
+	b, err := os.ReadFile(ConfigPath)
 	if err != nil {
-		seelog.Criticalf(err.Error())
+		_ = log.Criticalf(err.Error())
 		os.Exit(1)
 	}
-	yaml.Unmarshal(b, &orchestra)
+	_ = yaml.Unmarshal(b, &orchestra)
 
 	globalEnvs = os.Environ()
 	for k, v := range orchestra.Env {
@@ -84,7 +93,7 @@ func runCommands(c *cli.Context, cmds []string) error {
 		if err != nil {
 			return err
 		}
-		cmd.Wait()
+		_ = cmd.Wait()
 		if !cmd.ProcessState.Success() {
 			return fmt.Errorf("Command %s exited with error", cmdLine[0])
 		}

@@ -69,7 +69,7 @@ func testService(c *cli.Context, service *services.Service) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	cmd.Wait()
+	_ = cmd.Wait()
 	if !cmd.ProcessState.Success() {
 		return false, nil
 	}

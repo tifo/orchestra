@@ -55,7 +55,7 @@ func installService(service *services.Service) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	cmd.Wait()
+	_ = cmd.Wait()
 	if !cmd.ProcessState.Success() {
 		return false, fmt.Errorf("Failed to install service %s\n%s", service.Name, output.String())
 	} else if output.Len() > 0 {

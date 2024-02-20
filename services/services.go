@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"go/build"
 	"io/fs"
-	"io/ioutil"
 	"os"
 	"path"
 	"sort"
@@ -14,11 +13,14 @@ import (
 
 	log "github.com/cihub/seelog"
 	"gopkg.in/yaml.v2"
+
+	"github.com/tifo/orchestra/config"
 )
 
 var (
 	// Internal Service Registry
-	Registry map[string]*Service
+	Registry      map[string]*Service
+	StackRegistry map[string][]*Service
 
 	// Path variables
 	OrchestraServicePath string
@@ -31,6 +33,7 @@ var (
 
 func init() {
 	Registry = make(map[string]*Service)
+	StackRegistry = make(map[string][]*Service)
 }
 
 // Init initializes the OrchestraServicePath to the workingdir/.orchestra path
@@ -65,6 +68,7 @@ func (s SortableRegistry) Less(i, j int) bool {
 // Service encapsulates all the information needed for a service
 type Service struct {
 	Name        string
+	Stack       string
 	Description string
 	Path        string
 	Color       string
@@ -85,7 +89,7 @@ type Service struct {
 
 func (s *Service) IsRunning() bool {
 	if _, err := os.Stat(s.PidFilePath); err == nil {
-		bytes, _ := ioutil.ReadFile(s.PidFilePath)
+		bytes, _ := os.ReadFile(s.PidFilePath)
 		pid, _ := strconv.Atoi(string(bytes))
 		proc, procErr := os.FindProcess(pid)
 		if procErr == nil {
@@ -103,45 +107,50 @@ func (s *Service) IsRunning() bool {
 	return false
 }
 
-// DiscoverServices walks into the project path and looks in every subdirectory
-// for the service.yml file. For every service it registers it after trying
-// to import the package using Go's build.Import package
-func DiscoverServices() {
-	fd, _ := os.ReadDir(ProjectPath)
+func discoverStack(stack string) {
+	fd, _ := os.ReadDir(path.Join(ProjectPath, stack))
+	if stack != "" {
+		StackRegistry[stack] = make([]*Service, 0)
+	}
 	for _, item := range fd {
 		serviceName := item.Name()
+		if stack != "" {
+			serviceName = path.Join(stack, serviceName)
+		}
 		if item.IsDir() && !strings.HasPrefix(serviceName, ".") {
-			serviceConfigPath := fmt.Sprintf("%s/%s/service.yml", ProjectPath, serviceName)
+			serviceConfigPath := path.Join(ProjectPath, serviceName, "service.yml")
 			if _, err := os.Stat(serviceConfigPath); err == nil {
 				// Check for service.yml and try to import the package
 				pkg, err := build.ImportDir(path.Join(ProjectPath, serviceName), build.FindOnly)
 				if err != nil {
-					log.Errorf("Error registering %s", item.Name())
-					log.Error(err.Error())
+					_ = log.Errorf("Error registering %s", item.Name())
+					_ = log.Error(err.Error())
 					continue
 				}
 
 				service := &Service{
-					Name:          item.Name(),
+					Name:          serviceName,
+					Stack:         stack,
 					Description:   "",
 					FileInfo:      item,
 					PackageInfo:   pkg,
 					OrchestraPath: OrchestraServicePath,
-					LogFilePath:   fmt.Sprintf("%s/%s.log", OrchestraServicePath, serviceName),
-					PidFilePath:   fmt.Sprintf("%s/%s.pid", OrchestraServicePath, serviceName),
+					LogFilePath:   path.Join(OrchestraServicePath, strings.Replace(serviceName, "/", "_", -1)+".log"),
+					PidFilePath:   path.Join(OrchestraServicePath, strings.Replace(serviceName, "/", "_", -1)+".pid"),
 					Color:         colors[len(Registry)%len(colors)],
-					Path:          fmt.Sprintf("%s/%s", ProjectPath, serviceName)}
+					Path:          path.Join(ProjectPath, serviceName),
+				}
 
 				// Parse env variable in configuration
 				var serviceConfig struct {
 					Env map[string]string `yaml:"env,omitempty"`
 				}
-				b, err := ioutil.ReadFile(serviceConfigPath)
+				b, err := os.ReadFile(serviceConfigPath)
 				if err != nil {
-					log.Criticalf(err.Error())
+					_ = log.Criticalf(err.Error())
 					os.Exit(1)
 				}
-				yaml.Unmarshal(b, &serviceConfig)
+				_ = yaml.Unmarshal(b, &serviceConfig)
 				for k, v := range serviceConfig.Env {
 					service.Env = append(service.Env, fmt.Sprintf("%s=%s", k, v))
 				}
@@ -152,17 +161,33 @@ func DiscoverServices() {
 				}
 
 				if binPath := os.Getenv("GOBIN"); binPath != "" {
-					service.BinPath = fmt.Sprintf("%s/%s", binPath, serviceName)
+					service.BinPath = path.Join(binPath, path.Base(serviceName))
 				} else {
-					service.BinPath = fmt.Sprintf("%s/bin/%s", os.Getenv("GOPATH"), serviceName)
+					service.BinPath = path.Join(os.Getenv("GOPATH"), "bin", path.Base(serviceName))
 				}
 
 				// Add the service to the registry
 				Registry[serviceName] = service
+				if stack != "" {
+					StackRegistry[stack] = append(StackRegistry[stack], service)
+				}
 				// When registering, we take care, on every run, to check
 				// if the process is still alive.
 				service.IsRunning()
 			}
+		}
+	}
+}
+
+// DiscoverServices walks into the project path and looks in every subdirectory
+// for the service.yml file. For every service it registers it after trying
+// to import the package using Go's build.Import package
+func DiscoverServices() {
+	for _, stack := range config.GetStacks() {
+		if stack == "" || stack == "." {
+			discoverStack("")
+		} else {
+			discoverStack(stack)
 		}
 	}
 }

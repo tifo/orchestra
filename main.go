@@ -18,6 +18,27 @@ var app *cli.App
 
 const defaultConfigFile = "orchestra.yml"
 
+func findConfigFile() string {
+	dir, err := os.Getwd()
+	if err != nil {
+		return defaultConfigFile
+	}
+	for {
+		file := filepath.Join(dir, defaultConfigFile)
+		_, err := os.Stat(file)
+		if err == nil {
+			return file
+		}
+
+		if dir == "/" {
+			break
+		}
+
+		dir = filepath.Dir(dir)
+	}
+	return defaultConfigFile
+}
+
 func main() {
 	defer log.Flush()
 	app = cli.NewApp()
@@ -38,8 +59,7 @@ func main() {
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:   "config, c",
-			Value:  "orchestra.yml",
-			Usage:  "Specify a different config file to use",
+			Usage:  "Specify a different config file to use (default: \"orchestra.yml\"",
 			EnvVar: "ORCHESTRA_CONFIG",
 		},
 	}
@@ -48,12 +68,12 @@ func main() {
 	app.Before = func(c *cli.Context) error {
 		confVal := c.GlobalString("config")
 		if confVal == "" {
-			confVal = defaultConfigFile
+			confVal = findConfigFile()
 		}
 
 		config.ConfigPath, _ = filepath.Abs(confVal)
 		if _, err := os.Stat(config.ConfigPath); os.IsNotExist(err) {
-			fmt.Printf("No %s found. Have you specified the right directory?\n", c.GlobalString("config"))
+			fmt.Printf("No %s found. Have you specified the right directory?\n", confVal)
 			os.Exit(1)
 		}
 		services.ProjectPath, _ = path.Split(config.ConfigPath)
@@ -67,7 +87,7 @@ func main() {
 		services.Init()
 		return nil
 	}
-	app.Version = "0.1"
+	app.Version = "0.5.0"
 	app.Run(os.Args)
 	if commands.HasErrors() {
 		os.Exit(1)

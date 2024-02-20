@@ -49,7 +49,7 @@ func TailServiceLog(service *services.Service, wg *sync.WaitGroup) {
 	spacingLength := services.MaxServiceNameLength + 2 - len(service.Name)
 	t, err := tail.TailFile(service.LogFilePath, tail.Config{Follow: true})
 	if err != nil {
-		log.Error(err.Error())
+		_ = log.Error(err.Error())
 	}
 	for line := range t.Lines {
 		logReceiver <- fmt.Sprintf("@{%s}%s@{|}%s|  %s\n", service.Color, service.Name, strings.Repeat(" ", spacingLength), line.Text)

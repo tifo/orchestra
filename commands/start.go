@@ -46,7 +46,7 @@ func StartAction(c *cli.Context) error {
 	}
 	pool.Drain()
 	if c.Bool("attach") || c.Bool("logs") {
-		LogsAction(c)
+		_ = LogsAction(c)
 	}
 	return nil
 }
@@ -103,7 +103,7 @@ func buildAndStart(c *cli.Context, service *services.Service) (bool, error) {
 	if err := cmd.Start(); err != nil {
 		return rebuilt, err
 	}
-	pidFile.WriteString(strconv.Itoa(cmd.Process.Pid))
+	_, _ = pidFile.WriteString(strconv.Itoa(cmd.Process.Pid))
 	time.Sleep(200 * time.Millisecond)
 	if !service.IsRunning() {
 		return rebuilt, fmt.Errorf("Service %s exited after %s", service.Name, cmd.ProcessState.UserTime().String())

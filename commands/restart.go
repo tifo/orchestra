@@ -43,7 +43,7 @@ func RestartAction(c *cli.Context) error {
 	pool.Drain()
 
 	if c.Bool("attach") || c.Bool("logs") {
-		LogsAction(c)
+		_ = LogsAction(c)
 	}
 	return nil
 }

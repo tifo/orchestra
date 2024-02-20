@@ -22,33 +22,46 @@ func FilterServices(c *cli.Context) map[string]*services.Service {
 	excludeMode := 0
 	args := c.Args()
 	for _, s := range args {
-		serv := s
+		name := s
 		if strings.HasPrefix(s, "~") {
-			serv = strings.Replace(s, "~", "", 1)
+			name = strings.Replace(s, "~", "", 1)
 		}
-		if _, ok := services.Registry[serv]; ok {
+		if _, ok := services.Registry[name]; ok {
 			if strings.HasPrefix(s, "~") {
 				excludeMode += 1
-				delete(services.Registry, serv)
+				delete(services.Registry, name)
+			} else {
+				excludeMode -= 1
+			}
+		} else if stack, ok := services.StackRegistry[name]; ok {
+			if strings.HasPrefix(s, "~") {
+				excludeMode += 1
+				for _, svc := range stack {
+					delete(services.Registry, svc.Name)
+				}
+				delete(services.StackRegistry, name)
 			} else {
 				excludeMode -= 1
 			}
 		} else {
-			log.Errorf("Service %s not found", s)
+			_ = log.Errorf("Service or stack %s not found", s)
 			return nil
 		}
 	}
 	if math.Abs(float64(excludeMode)) != float64(len(args)) {
-		log.Critical("You can't exclude and include services at the same time")
+		_ = log.Critical("You can't exclude and include services at the same time")
 		os.Exit(1)
 	}
 	if excludeMode < 0 {
-		for name := range services.Registry {
+		for name, svc := range services.Registry {
 			included := false
 			for _, s := range args {
 				if name == s {
 					included = true
 					break
+				}
+				if svc.Stack == s {
+					included = true
 				}
 			}
 			if !included {
@@ -60,6 +73,9 @@ func FilterServices(c *cli.Context) map[string]*services.Service {
 }
 
 func ServicesBashComplete(c *cli.Context) {
+	for stack := range services.StackRegistry {
+		fmt.Println(stack)
+	}
 	for name := range services.Registry {
 		fmt.Println(name)
 		fmt.Println("~" + name)
@@ -72,7 +88,7 @@ func BeforeAfterWrapper(f func(c *cli.Context) error) func(c *cli.Context) error
 		if err != nil {
 			appendError(err)
 		}
-		f(c)
+		_ = f(c)
 		err = config.GetAfterFunc()(c)
 		if err != nil {
 			appendError(err)
