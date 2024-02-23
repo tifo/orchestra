@@ -92,6 +92,7 @@ func buildAndStart(c *cli.Context, service *services.Service) (bool, error) {
 		return rebuilt, err
 	}
 	defer pidFile.Close()
+	cmd.Dir = services.ProjectPath
 	cmd.Stdout = outputFile
 	cmd.Stderr = outputFile
 	cmd.Env = GetEnvForService(c, service)

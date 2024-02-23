@@ -61,7 +61,7 @@ func main() {
 		services.Init()
 		return nil
 	}
-	app.Version = "0.5.2"
+	app.Version = "0.6.0"
 	app.Run(os.Args)
 	if commands.HasErrors() {
 		os.Exit(1)
